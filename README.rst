@@ -1,32 +1,23 @@
-AARC Entitlements G002 / G069
-======================
+.. include:: ./doc/source/common.rst
 
-This package provides a python class to parse and compare entitlements according
-to the AARC-G002 Recommendation https://aarc-community.org/guidelines/aarc-g002.
+Tests
+-----
+Run tests for all supported python versions::
+
+    tox
+
+Documentation
+-------------
+Build the docs using::
+
+    tox -e docs
+
+After this, the documentation should be located at `doc/build/index.html`.
+Documentation is also available at `Readthedocs <https://aarc-g002-entitlement.readthedocs.io/en/latest>`.
 
 
-Example: Check if a user entitlement fits requirements
--------
-
-.. code-block:: python
-
-     from aarc_entitlement import AarcEntitlement
-
-     required = AarcEntitlementG002(
-         'urn:geant:h-df.de:group:aai-admin',
-         strict=False,
-     )
-     actual = AarcEntitlement(
-         'urn:geant:h-df.de:group:aai-admin:role=member#backupserver.used.for.developmt.de',
-     )
-
-     # is a user with actual permitted to use a resource which needs required?
-     permitted = required.is_contained_in(actual) # True in this case
-
-     # are the two entitlements the same?
-     equals = required == actual # False in this case
-
-API
----
-.. automodule:: aarc_entitlement
-   :members:
+Funding Notice
+--------------
+The AARC project has received funding from the European Union’s Horizon
+2020 research and innovation programme under grant agreement No 653965 and
+730941.
