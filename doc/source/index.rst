@@ -1,4 +1,4 @@
-.. include:: common.rst
+.. include:: ../../README.rst
 
 
 API
