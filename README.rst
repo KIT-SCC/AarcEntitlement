@@ -2,7 +2,7 @@ AARC Entitlement Library
 ========================
 
 This package provides python classes to create, parse and compare entitlements according
-to the AARC recommendations G002 <https://aarc-community.org/guidelines/aarc-g002> and G069 <TODO LINK>.
+to the AARC recommendations G002 https://aarc-community.org/guidelines/aarc-g002 and G069 TODO LINK.
 
 Installation
 ------------
@@ -11,8 +11,8 @@ Install using pip::
     pip install aarc-entitlement
 
 
-Examples:
---------
+Examples
+---------
 
 Check if a user entitlement permits usage of a service
 ______________________________________________________
@@ -34,7 +34,9 @@ ______________________________________________________
     equals = required == actual
     # -> False here
 
-Other examples for entitlements and comparisions can be found in :download:`examples.py <../../examples.py>`
+..
+    does not work on github:
+    Other examples for entitlements and comparisions can be found in :download:`examples.py <../../examples.py>`
 
 G069 Entitlement Normalization
 ______________________________
