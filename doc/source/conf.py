@@ -29,7 +29,11 @@ sys.path.insert(0, os.path.abspath('../../'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 
-extensions = ['sphinx.ext.autodoc']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx_autodoc_typehints',
+    'sphinx_rtd_theme',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -47,7 +51,7 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = "aarc_g002_entitlement"
+project = "aarc_entitlement"
 copyright = "2017-present, Marcus Hardt, Lukas Burgey"
 author = "Marcus Hardt, Lukas Burgey"
 
@@ -88,21 +92,27 @@ modindex_common_prefix = ['aarc_g002_entitlement.']
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
+
+html_logo = 'logo.png'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    'logo': 'logo.png',
-    'show_powered_by': False,
-    'github_user': 'KIT-SCC',
-    'github_repo': 'aarc-g002-entitlement',
-    'github_banner': False,
-    'show_related': False,
-    'note_bg': '#FFF59C',
-    'description': 'Parser for entitlements according to the AARC-G002 Recommendation',
+#     'logo': 'logo.png',
+#     'show_powered_by': False,
+#     'github_user': 'KIT-SCC',
+#     'github_repo': 'AarcEntitlement',
+#     'github_banner': False,
+#     'show_related': False,
+#     'note_bg': '#FFF59C',
+#     'description': 'Library for handling entitlements according to the AARC Recommendations G002 and G069',
 }
+
+
+html_always_document_param_types = True
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -182,10 +192,10 @@ htmlhelp_basename = 'doc-out'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
-latex_documents = [
-    ('index', 'aarc_g002.tex', u'Documentation',
-     author, 'manual'),
-]
+# latex_documents = [
+#     ('index', 'aarc_g002.tex', 'Documentation',
+#      author, 'manual'),
+# ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -212,4 +222,6 @@ latex_logo = ""
 autodoc_default_options = {
     'members':         True,
     'member-order':    'bysource',
+    'show-inheritance': True,
 }
+autoclass_content = 'both'
