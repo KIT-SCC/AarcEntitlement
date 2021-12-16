@@ -4,11 +4,11 @@ from enum import Enum
 
 import pytest
 
+import aarc_entitlement
 from aarc_entitlement import (
-    AarcEntitlementG002,
-    AarcEntitlementG069,
+    G002,
+    G069,
     KEY,
-    AarcEntitlementError,
 )
 
 # parsing strictness
@@ -25,8 +25,8 @@ class Rel(Enum):
     DISJOINT = 4  # this does not permit the user to use the service
 
 
-@pytest.mark.parametrize("aarc_class", [AarcEntitlementG002, AarcEntitlementG069])
-class TestAarcEntitlement:
+@pytest.mark.parametrize("aarc_class", [G002, G069])
+class TestAll:
     AUTHORITY_FOO = "unity.helmholtz-data-federation.de"
     AUTHORITY_BAR = "backupserver.used.for.developmt.de"
 
@@ -157,7 +157,7 @@ class TestAarcEntitlement:
     def test_rel(self, aarc_class, name, strict, rel, required, actual):
         _ = name
         parser_args = {}
-        if aarc_class != AarcEntitlementG069:
+        if aarc_class != G069:
             parser_args["strict"] = strict
 
         ent_required = aarc_class(required, **parser_args)
@@ -189,7 +189,7 @@ class TestAarcEntitlement:
         ],
     )
     def test_failure_incomplete_but_valid_entitlement(self, aarc_class, required):
-        if aarc_class != AarcEntitlementG069:
+        if aarc_class != G069:
             aarc_class(required, strict=False)
 
     @pytest.mark.parametrize(
@@ -228,14 +228,14 @@ class TestAarcEntitlement:
     )
     def test_init_using_parts(self, aarc_class, parts):
         parser_args = {}
-        if aarc_class == AarcEntitlementG002:
+        if aarc_class == G002:
             parser_args["strict"] = bool(parts.get(KEY.GROUP_AUTHORITY, None))
 
         aarc_class(parts, **parser_args)
 
     def test_set_part(self, aarc_class):
         parser_args = {}
-        if aarc_class == AarcEntitlementG002:
+        if aarc_class == G002:
             parser_args["strict"] = False
 
         required = aarc_class(
@@ -266,19 +266,19 @@ class TestAarcEntitlement:
         assert not required.is_contained_in(actual)
 
 
-class TestAarcEntitlementG002:
+class TestG002:
     def test_strict_parsing(self):
         parts_missing_auth = {
             KEY.NAMESPACE_ID: "geant",
             KEY.DELEGATED_NAMESPACE: "example.org",
             KEY.GROUP: "foo",
         }
-        with pytest.raises(AarcEntitlementError):
-            AarcEntitlementG002(parts_missing_auth, strict=True)
+        with pytest.raises(aarc_entitlement.Error):
+            G002(parts_missing_auth, strict=True)
 
 
-class TestAarcEntitlementG069:
-    aarc_class = AarcEntitlementG069
+class TestG069:
+    aarc_class = G069
 
     @pytest.mark.parametrize(
         "percent_encoded_group",

@@ -41,11 +41,11 @@ _AUTH_REGEX_STRICT = (
 _AUTH_REGEX_LAX = f"({_AUTH_REGEX_STRICT})?"  # Optional Authority
 
 
-class AarcEntitlementError(Exception):
+class Error(Exception):
     """A generic error for this module"""
 
 
-class AarcEntitlementParseError(AarcEntitlementError):
+class ParseError(Error):
     """Error during parsing an entitlement"""
 
 
@@ -102,10 +102,10 @@ LAX_PARSING = ParseOptions(need_group_authority=False)
 STRICT_PARSING = ParseOptions(need_group_authority=True)
 
 
-class AarcEntitlement:
+class Base:
     """
-    `AarcEntitlement` is the parent class of the actual entitlements.
-    Use :class:`AarcEntitlementG069` or :class:`AarcEntitlementG002` directly.
+    `Base` is the parent class of the actual entitlements.
+    Use :class:`G069` or :class:`G002` directly.
 
     """
 
@@ -137,7 +137,7 @@ class AarcEntitlement:
         spec_regex = regex.compile(self._get_regex_str())
         match = spec_regex.fullmatch(raw)
         if match is None:
-            raise AarcEntitlementParseError(
+            raise ParseError(
                 f"Entitlement does not conform to specification ({self._parse_opts}): {raw}"
             )
 
@@ -150,11 +150,11 @@ class AarcEntitlement:
                 if len(value) == 1:
                     self._set_part(key, value[0])
                 elif not self._parse_opts.is_optional(key):
-                    raise AarcEntitlementError(
+                    raise Error(
                         f"Error extracting attribute '{key}' got {value}"
                     )
             else:
-                raise AarcEntitlementError(
+                raise Error(
                     f"Error extracting attribute '{key}' got {value}"
                 )
 
@@ -166,7 +166,7 @@ class AarcEntitlement:
             val = parts.get(key, None)
             if val is None:
                 if not is_optional and not is_tuple:
-                    raise AarcEntitlementError(
+                    raise Error(
                         f"Part with key '{key}' must not be None"
                     )
             else:
@@ -174,7 +174,7 @@ class AarcEntitlement:
                     if isinstance(val, list):
                         val = tuple(val)
                     elif not isinstance(val, tuple):
-                        raise AarcEntitlementError(
+                        raise Error(
                             f"Part with key '{key}' must be tuple: {val}"
                         )
 
@@ -187,14 +187,14 @@ class AarcEntitlement:
     ):
         """
         Instances can be tested for equality and less-than-or-equality.
-        :meth:`AarcEntitlement.satisfies` can be used to check if a user with an entitlement `user_has`
+        :meth:`.satisfies` can be used to check if a user with an entitlement `user_has`
         is permitted to use a resource which requires a certain entitlement `service_wants` using: `user_has.satisfies(resource_wants)`
 
         :param Union[str,dict] entitlement: Usually a raw string representation of the entitlement.
             Alternatively a dict with the needed parts may be provided.
-        :raises AarcEntitlementParseError: If the raw entitlement is not following the respective AARC
+        :raises ParseError: If the raw entitlement is not following the respective AARC
             recommendation and cannnot be parsed.
-        :raises AarcEntitlementError:
+        :raises Error:
             If the attributes extracted from the entitlement could not be assigned to this instance.
 
         """
@@ -206,7 +206,7 @@ class AarcEntitlement:
         elif isinstance(entitlement, dict):
             self._init_from_parts(entitlement)
         else:
-            raise AarcEntitlementError(
+            raise Error(
                 "Arg 'entitlement' must be an entitlement string or a dict containing entitlement parts"
             )
 
@@ -252,7 +252,7 @@ class AarcEntitlement:
         )
 
     # pylint: disable=protected-access
-    def __le__(self, other: AarcEntitlement):
+    def __le__(self, other: Base):
         def compare(key, strict=False):
             self_val = self.get_part(key)
             other_val = other.get_part(key)
@@ -281,12 +281,12 @@ class AarcEntitlement:
         Check if `self` satisfies the demands of `required`.
         `self` satisfies the requirement if it is equal to or more permissive than `required`.
 
-        :param AarcEntitlement required: An entitlement which is required e.g. for using a service.
+        :param  required: An entitlement which is required e.g. for using a service.
         :return: True, if the requirement is satisfied. Otherwise, `False` is returned.
         """
         return required.is_contained_in(self)
 
-    def is_contained_in(self, other: AarcEntitlement):
+    def is_contained_in(self, other: Base):
         """
         `self` is contained in `other` if `other is equal or more permissive than `self`
         """
@@ -328,13 +328,13 @@ class AarcEntitlement:
         :param Union[tuple, list, str, None] value: The value to be set. If `None` and the part indicated by `key` is optional, then the part is deleted.
         """
         if key not in KEYS_ALL:
-            raise AarcEntitlementError(f"Not a valid key for entitlement part: {key}")
+            raise Error(f"Not a valid key for entitlement part: {key}")
 
         if value is None:
             if _part_is_tuple(key) or self._parse_opts.is_optional(key):
                 del self._parts[key]
             else:
-                raise AarcEntitlementError(
+                raise Error(
                     f"Setting key '{key}' to None is not permitted"
                 )
 
@@ -370,7 +370,7 @@ class AarcEntitlement:
         return self.get_part(KEY.GROUP_AUTHORITY)
 
 
-class AarcEntitlementG002(AarcEntitlement):
+class G002(Base):
     """Create, parse and compare AARC Entitlements G002
 
     Reference specification: https://aarc-community.org/guidelines/aarc-g002
@@ -381,10 +381,10 @@ class AarcEntitlementG002(AarcEntitlement):
 
     def __init__(self, entitlement: Union[str, dict], strict=False):
         """
-        In addition to the parameters from :class:`AarcEntitlement` the strict parametr is available:
+        In addition to the parameters from :class:`` the strict parametr is available:
 
         :param bool,optional strict: If set to true, only entitlements with a group_authority part are valid.
-            If `raw` does not contain a group_authority part, a :class:`AarcEntitlementParseError` will be raised.
+            If `raw` does not contain a group_authority part, a :class:`ParseError` will be raised.
 
         """
         parse_opts = LAX_PARSING if not strict else STRICT_PARSING
@@ -401,13 +401,13 @@ class AarcEntitlementG002(AarcEntitlement):
         return unquote(raw)
 
 
-class AarcEntitlementG069(AarcEntitlement):
+class G069(Base):
     def __init__(self, entitlement: Union[str, dict]):
         """
-        In contrast to :class:`AarcEntitlementG002` this entitlement spec allows '%xx' encoded parts.
+        In contrast to :class:`G002` this entitlement spec allows '%xx' encoded parts.
         Hence, a string `entitlement` is not '%xx' decoded.
 
-        :class:`AarcEntitlementG069` uses the same parameters as :class:`AarcEntitlement`.
+        :class:`G069` uses the same parameters as :class:``.
 
         """
         super().__init__(entitlement)
