@@ -324,7 +324,7 @@ class Base:
         `set_part` can be used to modify this entitlement.
         Values will be properly normalized.
 
-        :param str key: Key of the entitlement part. Valid values can be found in :keyword:`aarc_entitlement.ALL_KEYS`
+        :param str key: Key of the entitlement part. Valid values can be found in `aarc_entitlement.ALL_KEYS`
         :param Union[tuple, list, str, None] value: The value to be set. If `None` and the part indicated by `key` is optional, then the part is deleted.
         """
         if key not in KEYS_ALL:
@@ -407,7 +407,7 @@ class G069(Base):
         In contrast to :class:`G002` this entitlement spec allows '%xx' encoded parts.
         Hence, a string `entitlement` is not '%xx' decoded.
 
-        :class:`G069` uses the same parameters as :class:``.
+        :class:`G069` uses the same parameters as :class:`Base`.
 
         """
         super().__init__(entitlement)
