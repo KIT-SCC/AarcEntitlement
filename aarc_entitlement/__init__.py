@@ -1,11 +1,10 @@
 """
-Check entitlements according to the AARC G002 / G069 recommendations
+Check entitlements according to the AARC recommendations G002 and G069.
 
 https://aarc-community.org/guidelines/aarc-g002
 
-This code is distributed under the MIT License
+This code is distributed under the MIT License.
 """
-# TODO link above to the final G069 document
 
 from __future__ import annotations
 
@@ -91,6 +90,9 @@ class ParseOptions:
     def __init__(self, need_group_authority: bool):
         self.need_group_authority = need_group_authority
 
+    def __str__(self):
+        return f"group_optional={self.need_group_authority}"
+
     def is_optional(self, key):
         if self.need_group_authority:
             return key == KEY.ROLE
@@ -115,7 +117,7 @@ class Base:
     def _preprocess(self, entitlement: str) -> str:
         return entitlement
 
-    def _get_regex_str(self) -> str:
+    def _get_regex_str(self) -> str:  # pragma: no cover
         """must be overwritten in child subclasses"""
         print("Implement in subclass")
         return ""
@@ -128,9 +130,7 @@ class Base:
     def _set_part(self, key, value):
         self._parts[key] = self._normalize_part(key, value)
 
-    def _parse(self, raw: str, parse_opts=None):
-        if parse_opts is None:
-            self._parse_opts = LAX_PARSING
+    def _parse(self, raw: str):
 
         # These regexes are not compatible with stdlib 're', we need 'regex'!
         # (because of repeated captures, see https://bugs.python.org/issue7132)
@@ -150,13 +150,14 @@ class Base:
                 if len(value) == 1:
                     self._set_part(key, value[0])
                 elif not self._parse_opts.is_optional(key):
-                    raise Error(
+                    # given the regex these cases can not happen
+                    raise ParseError(
                         f"Error extracting attribute '{key}' got {value}"
-                    )
+                    )  # pragma: no cover
             else:
-                raise Error(
+                raise ParseError(
                     f"Error extracting attribute '{key}' got {value}"
-                )
+                )  # pragma: no cover
 
     def _init_from_parts(self, parts: Dict[str, Union[str, tuple, list]]):
         for key in KEYS_ALL:
@@ -166,17 +167,13 @@ class Base:
             val = parts.get(key, None)
             if val is None:
                 if not is_optional and not is_tuple:
-                    raise Error(
-                        f"Part with key '{key}' must not be None"
-                    )
+                    raise ParseError(f"Part with key '{key}' must not be None")
             else:
                 if _part_is_tuple(key):
                     if isinstance(val, list):
                         val = tuple(val)
                     elif not isinstance(val, tuple):
-                        raise Error(
-                            f"Part with key '{key}' must be tuple: {val}"
-                        )
+                        raise ParseError(f"Part with key '{key}' must be tuple: {val}")
 
                 self._set_part(key, val)
 
@@ -206,7 +203,7 @@ class Base:
         elif isinstance(entitlement, dict):
             self._init_from_parts(entitlement)
         else:
-            raise Error(
+            raise ParseError(
                 "Arg 'entitlement' must be an entitlement string or a dict containing entitlement parts"
             )
 
@@ -334,9 +331,7 @@ class Base:
             if _part_is_tuple(key) or self._parse_opts.is_optional(key):
                 del self._parts[key]
             else:
-                raise Error(
-                    f"Setting key '{key}' to None is not permitted"
-                )
+                raise Error(f"Setting key '{key}' to None is not permitted")
 
         else:
             self._set_part(key, value)
@@ -397,8 +392,8 @@ class G002(Base):
             f"^{_NAMESPACE_REGEX_STRICT}{_GROUP_SUBGROUPS_ROLE_REGEX}{_AUTH_REGEX_LAX}$"
         )
 
-    def _preprocess(self, raw: str) -> str:
-        return unquote(raw)
+    def _preprocess(self, entitlement: str) -> str:
+        return unquote(entitlement)
 
 
 class G069(Base):

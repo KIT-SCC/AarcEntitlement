@@ -31,6 +31,106 @@ class TestAll:
     AUTHORITY_BAR = "backupserver.used.for.developmt.de"
 
     @pytest.mark.parametrize(
+        "ent,error",
+        [
+            (
+                {
+                    KEY.NAMESPACE_ID: "geant",
+                    KEY.DELEGATED_NAMESPACE: "example.org",
+                    KEY.GROUP: "foo",
+                },
+                False,
+            ),
+            (
+                {
+                    KEY.NAMESPACE_ID: "geant",
+                    KEY.DELEGATED_NAMESPACE: "example.org",
+                    KEY.SUBNAMESPACES: ["abc", "def", "ghi"],
+                    KEY.GROUP: "foo",
+                },
+                False,
+            ),
+            (
+                {
+                    KEY.NAMESPACE_ID: "geant",
+                    KEY.DELEGATED_NAMESPACE: "example.org",
+                    KEY.GROUP: "foo",
+                    KEY.SUBGROUPS: ["bar"],
+                },
+                False,
+            ),
+            (
+                {
+                    KEY.NAMESPACE_ID: "geant",
+                    KEY.DELEGATED_NAMESPACE: "example.org",
+                    KEY.GROUP: "foo",
+                    KEY.ROLE: "admin",
+                },
+                False,
+            ),
+            (
+                {
+                    KEY.NAMESPACE_ID: "geant",
+                    KEY.DELEGATED_NAMESPACE: "example.org",
+                    KEY.GROUP: "foo",
+                    KEY.ROLE: "admin",
+                },
+                False,
+            ),
+            (
+                {
+                    KEY.NAMESPACE_ID: "geant",
+                    KEY.DELEGATED_NAMESPACE: "example.org",
+                    KEY.GROUP: "foo",
+                    KEY.ROLE: "admin",
+                },
+                False,
+            ),
+            (
+                {
+                    KEY.NAMESPACE_ID: "geant",
+                    KEY.DELEGATED_NAMESPACE: "example.org",
+                    KEY.GROUP: "foo",
+                    KEY.ROLE: "admin",
+                    KEY.GROUP_AUTHORITY: f"{AUTHORITY_FOO}",
+                },
+                False,
+            ),
+            (
+                {
+                    KEY.NAMESPACE_ID: "geant",
+                    KEY.DELEGATED_NAMESPACE: "example.org",
+                    KEY.SUBNAMESPACES: "invalid_subns",  # must be list or tuple
+                    KEY.GROUP: "foo",
+                    KEY.ROLE: "admin",
+                },
+                True,
+            ),
+            (
+                0,  # invalid parts
+                True,
+            ),
+            (
+                "ulf:foo:bar:group:baz",  # invalid entitlement
+                True,
+            ),
+        ],
+    )
+    def test_parser(self, aarc_class, ent, error):
+        parser_args = {}
+        if aarc_class == G002:
+            if (isinstance(ent, dict) and ent.get(KEY.GROUP_AUTHORITY, False)) or (
+                isinstance(ent, str) and "#" in ent
+            ):
+                parser_args["strict"] = True
+
+        if error:
+            with pytest.raises(aarc_entitlement.ParseError):
+                aarc_class(ent, **parser_args)
+        else:
+            aarc_class(ent, **parser_args)
+
+    @pytest.mark.parametrize(
         "name,strict,rel,required,actual",
         [
             (
@@ -156,82 +256,29 @@ class TestAll:
     )
     def test_rel(self, aarc_class, name, strict, rel, required, actual):
         _ = name
-        parser_args = {}
-        if aarc_class != G069:
-            parser_args["strict"] = strict
-
-        ent_required = aarc_class(required, **parser_args)
-        ent_actual = aarc_class(actual, **parser_args)
+        if aarc_class != G069 and strict:
+            ent_required = aarc_class(required, strict=strict)
+            ent_actual = aarc_class(actual, strict=strict)
+        else:
+            ent_required = aarc_class(required)
+            ent_actual = aarc_class(actual)
 
         if rel == Rel.EQUAL:
             assert ent_required == ent_actual
-            assert ent_required.is_contained_in(ent_actual)
+            assert ent_actual.satisfies(ent_required)
             assert ent_actual.is_contained_in(ent_required)
         elif rel == Rel.ACTUAL_CONTAINS_REQUIRED:
             assert ent_required != ent_actual
-            assert ent_required.is_contained_in(ent_actual)
+            assert ent_actual.satisfies(ent_required)
             assert not ent_actual.is_contained_in(ent_required)
         elif rel == Rel.REQUIRED_CONTAINS_ACTUAL:
             assert ent_required != ent_actual
-            assert not ent_required.is_contained_in(ent_actual)
+            assert not ent_actual.satisfies(ent_required)
             assert ent_actual.is_contained_in(ent_required)
         elif rel == Rel.DISJOINT:
             assert ent_required != ent_actual
             assert not ent_required.is_contained_in(ent_actual)
             assert not ent_actual.is_contained_in(ent_required)
-
-    @pytest.mark.parametrize(
-        "required",
-        [
-            "urn:geant:h-df.de:group:aai-admin:role=admin",
-            "urn:geant:h-df.de:group:aai-admin",
-            "urn:geant:kit.edu:group:DFN-SLCS",
-        ],
-    )
-    def test_failure_incomplete_but_valid_entitlement(self, aarc_class, required):
-        if aarc_class != G069:
-            aarc_class(required, strict=False)
-
-    @pytest.mark.parametrize(
-        "parts",
-        [
-            {
-                KEY.NAMESPACE_ID: "geant",
-                KEY.DELEGATED_NAMESPACE: "example.org",
-                KEY.GROUP: "foo",
-            },
-            {
-                KEY.NAMESPACE_ID: "geant",
-                KEY.DELEGATED_NAMESPACE: "example.org",
-                KEY.SUBNAMESPACES: ["abc", "def", "ghi"],
-                KEY.GROUP: "foo",
-            },
-            {
-                KEY.NAMESPACE_ID: "geant",
-                KEY.DELEGATED_NAMESPACE: "example.org",
-                KEY.GROUP: "foo",
-                KEY.SUBGROUPS: ["bar"],
-            },
-            {
-                KEY.NAMESPACE_ID: "geant",
-                KEY.DELEGATED_NAMESPACE: "example.org",
-                KEY.GROUP: "foo",
-                KEY.ROLE: "admin",
-            },
-            {
-                KEY.NAMESPACE_ID: "geant",
-                KEY.DELEGATED_NAMESPACE: "example.org",
-                KEY.GROUP: "foo",
-                KEY.ROLE: "admin",
-            },
-        ],
-    )
-    def test_init_using_parts(self, aarc_class, parts):
-        parser_args = {}
-        if aarc_class == G002:
-            parser_args["strict"] = bool(parts.get(KEY.GROUP_AUTHORITY, None))
-
-        aarc_class(parts, **parser_args)
 
     def test_set_part(self, aarc_class):
         parser_args = {}
@@ -257,24 +304,71 @@ class TestAll:
             **parser_args,
         )
 
-        assert not required.is_contained_in(actual)
+        with pytest.raises(aarc_entitlement.Error):
+            actual.set_part("invalid-key", "foo")  # can we set an invalid key?
+
+        with pytest.raises(aarc_entitlement.Error):
+            actual.set_part(KEY.GROUP, None)  # can we delete a non-optional part?
+
+        assert not actual.satisfies(required)
+        assert not bool(actual.parts.get(KEY.ROLE))
+
         actual.set_part(KEY.ROLE, "admin")
         assert required.is_contained_in(actual)
+        assert bool(actual.parts.get(KEY.ROLE))
+
+        # modifying the parts must not work
+        del actual.parts[KEY.ROLE]
+        assert actual.satisfies(required)
+        assert bool(actual.parts.get(KEY.ROLE))
 
         # test deleting optional part
         actual.set_part(KEY.ROLE, None)
-        assert not required.is_contained_in(actual)
+        assert not actual.satisfies(required)
+        assert not bool(actual.parts.get(KEY.ROLE))
+
+    def test_str(self, aarc_class):
+        str(aarc_class("urn:geant:h-df.de:group:aai-admin"))
+
+    def test_properties(self, aarc_class):
+        ent = aarc_class(
+            f"urn:geant:h-df.de:kit:group:aai-admin:super-admin:role=admin-prime#{self.AUTHORITY_FOO}"
+        )
+        assert ent.namespace_id == "geant"
+        assert ent.delegated_namespace == "h-df.de"
+        assert ent.subnamespaces == ("kit",)
+        assert ent.group == "aai-admin"
+        assert ent.subgroups == ("super-admin",)
+        assert ent.role == "admin-prime"
+        assert ent.group_authority == self.AUTHORITY_FOO
 
 
 class TestG002:
-    def test_strict_parsing(self):
-        parts_missing_auth = {
-            KEY.NAMESPACE_ID: "geant",
-            KEY.DELEGATED_NAMESPACE: "example.org",
-            KEY.GROUP: "foo",
-        }
-        with pytest.raises(aarc_entitlement.Error):
-            G002(parts_missing_auth, strict=True)
+    @pytest.mark.parametrize(
+        "ent",
+        [
+            "urn:geant:h-df.de:group:aai-admin:role=admin",
+            "urn:geant:h-df.de:group:aai-admin",
+            "urn:geant:kit.edu:group:DFN-SLCS",
+        ],
+    )
+    def test_failure_incomplete_but_valid_entitlement(self, ent):
+        G002(ent, strict=False)
+
+    @pytest.mark.parametrize(
+        "ent",
+        [
+            {
+                KEY.NAMESPACE_ID: "geant",
+                KEY.DELEGATED_NAMESPACE: "example.org",
+                KEY.GROUP: "foo",
+            },
+            "urn:geant:h-df.de:group:aai-admin",
+        ],
+    )
+    def test_strict_parsing(self, ent):
+        with pytest.raises(aarc_entitlement.ParseError):
+            G002(ent, strict=True)
 
 
 class TestG069:
@@ -328,7 +422,6 @@ class TestG069:
         assert without_comp == with_comp
 
     def test_set_part_normalization(self):
-
         entitlement = self.aarc_class(
             {
                 KEY.NAMESPACE_ID: "geant",

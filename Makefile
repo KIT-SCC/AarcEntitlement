@@ -9,6 +9,10 @@ dist: clean
 upload: dist
 	twine upload $(TWINE_ARGS) dist/*
 
+.PHONY: coverage
+coverage:
+	tox -e py310
+
 .PHONY: clean
 clean:
 	@find . -type f -name '*.pyc' -delete
