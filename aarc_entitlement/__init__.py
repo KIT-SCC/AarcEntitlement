@@ -221,9 +221,9 @@ class Base:
         return part
 
     def __repr__(self):
-        """Serialize the entitlement to the AARC-G002 format.
+        """Serialize the entitlement to its respective format.
 
-        This is the inverse to `__init__` and thus `ent_str == repr(Aarc_g002_entitlement(ent_str))`
+        This is the inverse to `__init__` and thus `ent_str == repr(aarc_entitlement.Base(ent_str))`
         holds for any valid entitlement.
         """
         return (
