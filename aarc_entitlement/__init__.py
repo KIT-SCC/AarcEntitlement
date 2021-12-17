@@ -1,7 +1,9 @@
 """
 Check entitlements according to the AARC recommendations G002 and G069.
 
-https://aarc-community.org/guidelines/aarc-g002
+The documentation is available at https://aarcentitlement.readthedocs.io.
+
+The G002 is available at https://aarc-community.org/guidelines/aarc-g002.
 
 This code is distributed under the MIT License.
 """

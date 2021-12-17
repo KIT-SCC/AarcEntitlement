@@ -2,7 +2,7 @@ AARC Entitlement Library
 ========================
 
 This package provides python classes to create, parse and compare entitlements according
-to the AARC recommendations G002 https://aarc-community.org/guidelines/aarc-g002 and G069 TODO LINK.
+to the AARC recommendations G002 and G069.
 
 Installation
 ------------
@@ -10,6 +10,11 @@ Install using pip::
 
     pip install aarc-entitlement
 
+Documentation
+-------------
+The documentation is available at https://aarcentitlement.readthedocs.io.
+
+The G002 recommendation can be found at https://aarc-community.org/guidelines/aarc-g002.
 
 Examples
 ---------
@@ -63,8 +68,6 @@ Run tests for all supported python versions::
     tox -e docs
 
     # After this, the documentation should be located at `doc/build/index.html`.
-
-Documentation is also available at https://aarc-g002-entitlement.readthedocs.io/en/latest
 
 
 Funding Notice
