@@ -18,7 +18,7 @@ formats: [] # no PDF / ePub
 python:
   version: 3.8
   install:
-    - requirements: doc/source/requirements.txt # e.g. sphinx
+    - requirements: docs/source/requirements.txt # e.g. sphinx
     - requirements: requirements.txt # project dependencies
     - method: setuptools
       path: .
