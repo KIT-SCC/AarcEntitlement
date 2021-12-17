@@ -18,13 +18,13 @@ Check if a user entitlement permits usage of a service
 ______________________________________________________
 .. code-block:: python
 
-    from aarc_entitlement import AarcEntitlementG002
+    import aarc_entitlement
 
     # This entitlement is needed to use a service
-    required = AarcEntitlementG002('urn:geant:h-df.de:group:aai-admin')
+    required = aarc_entitlement.G002("urn:geant:h-df.de:group:aai-admin")
 
     # This entitlement is held by a user who wants to use the service
-    actual =   AarcEntitlementG002('urn:geant:h-df.de:group:aai-admin:role=member')
+    actual =   aarc_entitlement.G002("urn:geant:h-df.de:group:aai-admin:role=member")
 
     # Is the user permitted to use the service, because of its entitlement `actual`?
     permitted = actual.satisfies(required)
@@ -45,11 +45,11 @@ When using `AarcEntitlementG069` the library produces normalized representations
 
 .. code-block:: python
 
-    from aarc_entitlement import AarcEntitlementG069
+    import aarc_entitlement
 
     not_normalized = "UrN:NiD:ExAmPlE.oRg:group:Minun%20Ryhm%c3%a4ni"
 
-    normalized = repr(AarcEntitlementG069(not_normalized))
+    normalized = repr(aarc_entitlement.G069(not_normalized))
     # -> "urn:nid:example.org:group:Minun%20Ryhm%C3%A4ni"
 
 Tests, Linting and Documentation
