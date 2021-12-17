@@ -1,5 +1,6 @@
 
-TWINE_ARGS=--repository testpypi
+# this was for publishing to testpypi only
+# TWINE_ARGS=--repository testpypi
 
 .PHONY: build
 dist: clean

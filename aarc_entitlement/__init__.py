@@ -93,7 +93,7 @@ class ParseOptions:
         self.need_group_authority = need_group_authority
 
     def __str__(self):
-        return f"group_optional={self.need_group_authority}"
+        return f"need_group_authority={self.need_group_authority}"
 
     def is_optional(self, key):
         if self.need_group_authority:
