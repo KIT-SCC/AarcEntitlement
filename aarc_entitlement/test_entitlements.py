@@ -389,21 +389,28 @@ class TestG069:
         self.aarc_class(must_parse)
 
     @pytest.mark.parametrize(
-        "unnormalized",
+        "unnormalized,should_work",
         [
-            "URN:NID:EXAMPLE.ORG:group:Minun%20Ryhm%C3%A4ni",
-            "UrN:NiD:ExAmPlE.oRg:group:Minun%20Ryhm%c3%a4ni",
-            "URN:nid:example.org:group:Minun%20Ryhm%C3%A4ni",
-            "urn:nid:example.org:group:Minun%20Ryhm%c3%a4ni",
-            "urn:nid:example.org:group:Minun%20Ryhm%c3%A4ni",
+            ("URN:NID:EXAMPLE.ORG:group:Minun%20Ryhm%C3%A4ni", True),
+            ("UrN:NiD:ExAmPlE.oRg:group:Minun%20Ryhm%c3%a4ni", True),
+            ("URN:nid:example.org:group:Minun%20Ryhm%C3%A4ni", True),
+            ("urn:nid:example.org:group:Minun%20Ryhm%c3%a4ni", True),
+            ("urn:nid:example.org:group:Minun%20Ryhm%c3%A4ni", True),
+            ("urn:nid:example.org:group:mINUN%20rYHM%c3%A4NI", False),
         ],
     )
-    def test_normalization(self, unnormalized):
+    def test_normalization(self, unnormalized, should_work):
         normalized = "urn:nid:example.org:group:Minun%20Ryhm%C3%A4ni"
         normalized_ent = self.aarc_class(normalized)
         unnormalized_ent = self.aarc_class(unnormalized)
-        assert normalized == repr(unnormalized_ent)
-        assert normalized_ent == unnormalized_ent
+
+        if should_work:
+            assert normalized == repr(unnormalized_ent)
+            assert normalized_ent == unnormalized_ent
+        if not should_work:
+            assert normalized != repr(unnormalized_ent)
+            assert normalized_ent != unnormalized_ent
+
 
     @pytest.mark.parametrize(
         "with_optional_comp",
