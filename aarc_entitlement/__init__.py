@@ -85,7 +85,7 @@ KEYS_TUPLES = [KEY.SUBNAMESPACES, KEY.SUBGROUPS]
 
 
 def _part_is_tuple(key):
-    return key in [KEY.SUBNAMESPACES, KEY.SUBGROUPS]
+    return key in KEYS_TUPLES
 
 
 class ParseOptions:
