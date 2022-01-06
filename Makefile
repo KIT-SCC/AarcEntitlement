@@ -2,7 +2,7 @@
 # this was for publishing to testpypi only
 # TWINE_ARGS=--repository testpypi
 
-.PHONY: build
+.PHONY: dist
 dist: clean
 	python setup.py sdist bdist_wheel
 
