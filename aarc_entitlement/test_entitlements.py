@@ -389,7 +389,7 @@ class TestG069:
         self.aarc_class(must_parse)
 
     @pytest.mark.parametrize(
-        "unnormalized,should_work",
+        "unnormalized,is_equal",
         [
             ("URN:NID:EXAMPLE.ORG:group:Minun%20Ryhm%C3%A4ni", True),
             ("UrN:NiD:ExAmPlE.oRg:group:Minun%20Ryhm%c3%a4ni", True),
@@ -399,17 +399,13 @@ class TestG069:
             ("urn:nid:example.org:group:mINUN%20rYHM%c3%A4NI", False),
         ],
     )
-    def test_normalization(self, unnormalized, should_work):
+    def test_normalization(self, unnormalized, is_equal):
         normalized = "urn:nid:example.org:group:Minun%20Ryhm%C3%A4ni"
         normalized_ent = self.aarc_class(normalized)
         unnormalized_ent = self.aarc_class(unnormalized)
 
-        if should_work:
-            assert normalized == repr(unnormalized_ent)
-            assert normalized_ent == unnormalized_ent
-        if not should_work:
-            assert normalized != repr(unnormalized_ent)
-            assert normalized_ent != unnormalized_ent
+        assert is_equal == (normalized == repr(unnormalized_ent))
+        assert is_equal == (normalized_ent == unnormalized_ent)
 
 
     @pytest.mark.parametrize(
