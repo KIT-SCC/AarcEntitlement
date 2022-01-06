@@ -8,8 +8,6 @@ The G002 is available at https://aarc-community.org/guidelines/aarc-g002.
 This code is distributed under the MIT License.
 """
 
-from __future__ import annotations
-
 import re
 from typing import Tuple, Union, Dict
 from urllib.parse import unquote
@@ -250,8 +248,7 @@ class Base:
             tuple(self.get_part(key) for key in KEYS_ALL if key != KEY.GROUP_AUTHORITY)
         )
 
-    # pylint: disable=protected-access
-    def __le__(self, other: Base):
+    def __le__(self, other):
         def compare(key, strict=False):
             self_val = self.get_part(key)
             other_val = other.get_part(key)
@@ -285,7 +282,7 @@ class Base:
         """
         return required.is_contained_in(self)
 
-    def is_contained_in(self, other: Base):
+    def is_contained_in(self, other):
         """
         `self` is contained in `other` if `other is equal or more permissive than `self`
         """
