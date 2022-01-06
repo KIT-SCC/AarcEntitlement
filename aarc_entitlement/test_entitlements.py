@@ -403,10 +403,8 @@ class TestG069:
         normalized = "urn:nid:example.org:group:Minun%20Ryhm%C3%A4ni"
         normalized_ent = self.aarc_class(normalized)
         unnormalized_ent = self.aarc_class(unnormalized)
-
         assert is_equal == (normalized == repr(unnormalized_ent))
         assert is_equal == (normalized_ent == unnormalized_ent)
-
 
     @pytest.mark.parametrize(
         "with_optional_comp",
