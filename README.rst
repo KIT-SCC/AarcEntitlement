@@ -70,8 +70,17 @@ Run tests for all supported python versions::
     # After this, the documentation should be located at `doc/build/index.html`.
 
 
+Packaging
+---------
+To upload a new package version to pypi use the Makefile::
+    # build the package
+    make dist
+
+    # upload the package to pypi
+    make upload
+
+
 Funding Notice
 --------------
-The AARC project has received funding from the European Union’s Horizon
-2020 research and innovation programme under grant agreement No 653965 and
-730941.
+The AARC project has received funding from the European Union’s Horizon 2020
+research and innovation programme under grant agreement No 653965 and 730941.
