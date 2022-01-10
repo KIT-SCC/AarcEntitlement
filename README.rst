@@ -73,6 +73,7 @@ Run tests for all supported python versions::
 Packaging
 ---------
 To upload a new package version to pypi use the Makefile::
+
     # build the package
     make dist
 
