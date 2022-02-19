@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-from aarc_entitlement import AarcEntitlementG002
+import aarc_entitlement
 
 
-def example(i, required, actual, desc, entitlement_cls=AarcEntitlementG002):
+def example(i, required, actual, desc, entitlement_cls=aarc_entitlement.G002):
     required_ent = entitlement_cls(required)
     actual_ent = entitlement_cls(actual)
     print(f"\n{i}: {desc}")
