@@ -123,15 +123,16 @@ class Base:
         return ""
 
     @staticmethod
-    def _normalize_part(key, value: str) -> str:
+    def _normalize_part(
+        key: str, value: Union[str, Tuple[str]]
+    ) -> Union[str, Tuple[str]]:
         _ = key
         return value
 
-    def _set_part(self, key, value):
+    def _set_part(self, key: str, value: Union[str, Tuple[str]]):
         self._parts[key] = self._normalize_part(key, value)
 
     def _parse(self, raw: str):
-
         # These regexes are not compatible with stdlib 're', we need 'regex'!
         # (because of repeated captures, see https://bugs.python.org/issue7132)
         spec_regex = regex.compile(self._get_regex_str())
@@ -144,10 +145,10 @@ class Base:
         capturesdict = match.capturesdict()
         for key in KEYS_ALL:
             value = capturesdict.get(key, None)
-            if _part_is_tuple(key):
-                self._set_part(key, tuple(value))
-            elif isinstance(value, list):
-                if len(value) == 1:
+            if isinstance(value, list):
+                if _part_is_tuple(key):
+                    self._set_part(key, tuple(value))
+                elif len(value) == 1:
                     self._set_part(key, value[0])
                 elif not self._parse_opts.is_optional(key):
                     # given the regex these cases can not happen
@@ -169,11 +170,12 @@ class Base:
                 if not is_optional and not is_tuple:
                     raise ParseError(f"Part with key '{key}' must not be None")
             else:
-                if _part_is_tuple(key):
-                    if isinstance(val, list):
-                        val = tuple(val)
-                    elif not isinstance(val, tuple):
-                        raise ParseError(f"Part with key '{key}' must be tuple: {val}")
+                if isinstance(val, tuple):
+                    pass
+                elif isinstance(val, list):
+                    val = tuple(val)
+                elif _part_is_tuple(key):
+                    raise ParseError(f"Part with key '{key}' must be tuple: {val}")
 
                 self._set_part(key, val)
 
@@ -239,9 +241,8 @@ class Base:
         return value
 
     def __str__(self):
-        return f"<{self.__class__.__name__} " + " ".join(
-            f"{key}={self._part_str(key)}" for key in KEYS_ALL
-        )
+        parts = " ".join(f"{key}={self._part_str(key)}" for key in KEYS_ALL)
+        return f"<{self.__class__.__name__} {parts}>"
 
     def __hash__(self):
         return hash(
@@ -333,6 +334,9 @@ class Base:
                 raise Error(f"Setting key '{key}' to None is not permitted")
 
         else:
+            if isinstance(value, list):
+                value = tuple(value)
+
             self._set_part(key, value)
 
     @property
@@ -411,7 +415,7 @@ class G069(Base):
         return f"^{_NAMESPACE_REGEX_LAX}{_GROUP_SUBGROUPS_ROLE_REGEX}{_AUTH_REGEX_LAX}$"
 
     @staticmethod
-    def _normalize_part(key, value: Union[str, Tuple]) -> Union[str, Tuple]:
+    def _normalize_part(key, value: Union[str, Tuple[str]]) -> Union[str, Tuple[str]]:
         if key in [KEY.GROUP, KEY.SUBGROUPS, KEY.ROLE, KEY.GROUP_AUTHORITY]:
             # make percent encodings uppercase
             normalize = lambda v: re.sub(
