@@ -239,7 +239,7 @@ class Base:
         return value
 
     def __str__(self):
-        return "<{self.__name__} " + " ".join(
+        return f"<{self.__class__.__name__} " + " ".join(
             f"{key}={self._part_str(key)}" for key in KEYS_ALL
         )
 
