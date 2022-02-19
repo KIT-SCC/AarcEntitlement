@@ -241,8 +241,14 @@ class Base:
         return value
 
     def __str__(self):
-        parts = " ".join(f"{key}={self._part_str(key)}" for key in KEYS_ALL)
-        return f"<{self.__class__.__name__} {parts}>"
+        parts = []
+        for key in KEYS_ALL:
+            val = self._part_str(key)
+            if val is not None and val != "":
+                parts.append(f"{key}={val}")
+
+        parts_str = " ".join(parts)
+        return f"<{self.__class__.__name__} {parts_str}>"
 
     def __hash__(self):
         return hash(

@@ -6,8 +6,8 @@ def example(i, required, actual, desc, entitlement_cls=aarc_entitlement.G002):
     required_ent = entitlement_cls(required)
     actual_ent = entitlement_cls(actual)
     print(f"\n{i}: {desc}")
-    print(f"\tActual:    {required}")
-    print(f"\tRequired:  {actual}")
+    print(f"\tActual:    {required_ent}")
+    print(f"\tRequired:  {actual_ent}")
     print(f"\tSatisfied: {actual_ent.satisfies(required_ent)}")
     print(f"\tEqual:     {required_ent== actual_ent}")
 
