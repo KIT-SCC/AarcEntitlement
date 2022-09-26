@@ -14,7 +14,9 @@ Documentation
 -------------
 The documentation is available at https://aarcentitlement.readthedocs.io.
 
-The G002 recommendation can be found at https://aarc-community.org/guidelines/aarc-g002.
+The G069 recommendation can be found at https://aarc-community.org/guidelines/aarc-g069.
+(Its deprecated predecessor, G002, is available at https://aarc-community.org/guidelines/aarc-g002)
+
 
 Examples
 ---------
